@@ -41,9 +41,10 @@ class Ctrl(commands.Cog):
         Shameless code reuse, I know.
         """
         cogs = set(*cogs)
-        loaded = set([i.strip("cogs.") for i in self.Bot.extensions.keys()])
+        loaded = set([i.lstrip("cogs.") for i in self.Bot.extensions.keys()])
         failed = set()
         msg = ""
+
 
         # If action requires cogs to be loaded, but some aren't
         if pre and (not_loaded := cogs - loaded):
@@ -59,7 +60,7 @@ class Ctrl(commands.Cog):
             try:
                 getattr(self.Bot, pre + "load_extension")("cogs." + cog)
             except:
-                failed += cog
+                failed |= {cog}
                 logging.exception(f"Can't {pre}load {cog}.")
 
         if failed:
