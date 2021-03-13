@@ -18,7 +18,8 @@ handler = logging.FileHandler(filename='data/lt2b2.log', encoding='utf-8', mode=
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-Bot = commands.Bot(command_prefix="##")
+intents = discord.Intents(guild_messages=True, members=True, guilds=True)
+Bot = commands.Bot(command_prefix="##", intents=intents)
 
 # Always load Ctrl cog
 default_cogs = set(conf[lvl]['Default Cogs'].split()) | {"Ctrl"}

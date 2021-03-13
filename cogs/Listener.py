@@ -19,12 +19,19 @@ class Listener(commands.Cog):
         if message.author.bot:
             return None
         m = message.content.translate(punc_table).lower()
+        if not m:
+            return None
         try:
             i = searchlist.index(m)
             if response := responses[i+1]:
                 await message.channel.send(response)
         except:
             pass
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        channel = member.guild.system_channel
+        await channel.send(f"{responses[48]} {member.mention}!")
 
 def setup(client: commands.Bot) -> None:
     client.add_cog(Listener(client))
