@@ -4,6 +4,7 @@ import logging
 from configparser import ConfigParser
 from typing import Union, Literal
 from os import walk
+from discord_slash import SlashCommand
 
 conf = ConfigParser()
 conf.read("main.conf")
@@ -18,11 +19,12 @@ handler = logging.FileHandler(filename='data/lt2b2.log', encoding='utf-8', mode=
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-intents = discord.Intents(guild_messages=True, members=True, guilds=True)
-Bot = commands.Bot(command_prefix="##", intents=intents)
+#intents = discord.Intents(guild_messages=True, members=True, guilds=True)
+Bot = commands.Bot(command_prefix="##", intents=discord.Intents.all())
+Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True)
 
 # Always load Ctrl cog
-default_cogs = set(conf[lvl]['Default Cogs'].split()) | {"Ctrl"}
+default_cogs = set(conf[lvl]['Default Cogs'].split()) | {"Ctrl", "Slash"}
 available_cogs = set(i[:-3] for i in next(walk('cogs/'))[2])
 
 # Avoid unnecessary errors
