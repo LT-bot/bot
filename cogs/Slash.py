@@ -14,7 +14,8 @@ async def as_webhook(channel: discord.TextChannel, avatar_url: str, name: str,
     opts = {'content': message,
             'files': attachments,
             'avatar_url': avatar_url,
-            'username': name
+            'username': name,
+            'allowed_mentions': discord.AllowedMentions.none()
             }
     webhook = await channel.webhooks()
     await webhook[0].send(**opts)
@@ -37,15 +38,17 @@ class Slash(commands.Cog):
     async def _sarcasm(self, context: SlashContext, Message: str) -> None:
         Message = list(Message.lower())
         # This seems like the quickest way to do it?
-        for i in range(len(Message)//2):
+        for i in range((len(Message)+1)//2):
             Message[2*i] = Message[2*i].upper()
 
         Message = "".join(Message)
         context.author.avatar_url 
+        
+        name = context.author.nick or context.author.name
 
-        await context.respond()
+        await context.respond(eat=True)
         await as_webhook(context.channel, context.author.avatar_url, 
-                context.author.nick, Message)
+                name, Message)
         #await context.send(content=Message)
 
 def setup(Bot):
