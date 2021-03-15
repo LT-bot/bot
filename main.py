@@ -21,7 +21,7 @@ logger.addHandler(handler)
 
 #intents = discord.Intents(guild_messages=True, members=True, guilds=True)
 Bot = commands.Bot(command_prefix="##", intents=discord.Intents.all())
-Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True)
+Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
 default_cogs = set(conf[lvl]['Default Cogs'].split()) | {"Ctrl", "Slash"}
