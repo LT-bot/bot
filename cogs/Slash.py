@@ -10,11 +10,16 @@ conf = ConfigParser()
 conf.read("main.conf")
 guild_ids = [int(i) for i in conf['Slash']['Guild'].split()]
 default_avatar = conf['Slash']['Default Avatar']
+#disclaimer: regex parsing and shasums would be "better", but this is faster
 secret_num = int(conf['Slash']['Secret Num'])
 remove_fslash = str.maketrans("/", " ")
 
 async def as_webhook(channel: discord.TextChannel, avatar_url: str, name: str, 
         message: str, attachments: Optional[List[discord.Attachment]]=None ) -> None:
+    """
+    Send a message through a webhook. May contain list of files. No mentions
+    because webhooks can't be blocked and it's annoying.
+    """
     opts = {'content': message,
             'files': attachments,
             'avatar_url': avatar_url,
