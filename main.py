@@ -19,8 +19,8 @@ handler = logging.FileHandler(filename='data/lt2b2.log', encoding='utf-8', mode=
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-#intents = discord.Intents(guild_messages=True, members=True, guilds=True)
-Bot = commands.Bot(command_prefix="##", intents=discord.Intents.all())
+intents = discord.Intents(guild_messages=True, members=True, guilds=True)
+Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
 Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog

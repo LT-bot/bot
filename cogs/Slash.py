@@ -36,6 +36,9 @@ class Slash(commands.Cog):
                 ]
             )
     async def _sarcasm(self, context: SlashContext, Message: str) -> None:
+        """
+        Say something totally serious.
+        """
         Message = list(Message.lower())
         # This seems like the quickest way to do it?
         for i in range((len(Message)+1)//2):
