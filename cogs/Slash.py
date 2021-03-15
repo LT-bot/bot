@@ -4,10 +4,14 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 from configparser import ConfigParser
 from typing import Optional, List
+from time import time
 
 conf = ConfigParser()
 conf.read("main.conf")
 guild_ids = [int(i) for i in conf['Slash']['Guild'].split()]
+default_avatar = conf['Slash']['Default Avatar']
+secret_num = int(conf['Slash']['Secret Num'])
+remove_fslash = str.maketrans("/", " ")
 
 async def as_webhook(channel: discord.TextChannel, avatar_url: str, name: str, 
         message: str, attachments: Optional[List[discord.Attachment]]=None ) -> None:
@@ -39,7 +43,7 @@ class Slash(commands.Cog):
         """
         Say something totally serious.
         """
-        Message = list(Message.lower())
+        Message = list(Message.lower().translate(remove_fslash))
         # This seems like the quickest way to do it?
         for i in range((len(Message)+1)//2):
             Message[2*i] = Message[2*i].upper()
@@ -53,6 +57,28 @@ class Slash(commands.Cog):
         await as_webhook(context.channel, context.author.avatar_url, 
                 name, Message)
         #await context.send(content=Message)
+
+    
+    @cog_ext.cog_slash(name="anon", guild_ids=guild_ids,
+            description="Say something anonymously, no links!",
+            options=[
+                create_option(
+                    name="Message",
+                    description="Share your secret",
+                    option_type=3,
+                    required=True
+                    )
+                ]
+            )
+    async def _anon(self, context: SlashContext, Message: str) -> None:
+        """
+        Say something anonymously. ID changes every 17 minutes.
+        """
+        #this isn't cryptographically safe or anything, but it's faster
+        id = (context.author.id + round(time(),-3))%secret_num
+        await context.respond(eat=True)
+        await as_webhook(context.channel, default_avatar,
+                f"Anon {id}", Message.translate(remove_fslash))
 
 def setup(Bot):
     Bot.add_cog(Slash(Bot))
