@@ -11,6 +11,7 @@ class Roles(commands.Cog):
     def __init__(self, Bot: commands.Bot) -> None:
         self.Bot = Bot
         self.R_verified = Bot.guilds[0].get_role(int(conf['Roles']['verified']))
+        self.R_unverified = Bot.guilds[0].get_role(int(conf['Roles']['unverified']))
     
 
     @commands.group(name="roles", aliases=['role', 'r'])
@@ -28,6 +29,8 @@ class Roles(commands.Cog):
         for member in members:
             await member.add_roles(self.R_verified,
                     reason=f"Added by {context.author}")
+            await member.remove_roles(self.R_unverified,
+                    reason=f"Removed by {context.author}")
 
         await context.send("Ok.")
 

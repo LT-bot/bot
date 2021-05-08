@@ -9,9 +9,6 @@ from discord_slash import SlashCommand
 conf = ConfigParser()
 conf.read("main.conf")
 
-# Hard coding here for now - allow different settings for testing
-lvl = "Debug"
-
 # Recommended logging setup
 logger = logging.getLogger('lt2b2')
 logger.setLevel(logging.INFO)
@@ -24,16 +21,9 @@ Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
 Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
-default_cogs = set(conf[lvl]['Default Cogs'].split()) | {"Ctrl", "Slash"}
+default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", "Slash"}
 available_cogs = set(i[:-3] for i in next(walk('cogs/'))[2])
 
-# Avoid unnecessary errors
-for cog in default_cogs & available_cogs:
-    try:
-        Bot.load_extension('cogs.' + cog.capitalize())
-        logging.info(f"Loaded cog {cog.capitalize()}")
-    except Exception as e:
-        logging.exception(e)
 
 @Bot.check
 def global_check(context: commands.Context) -> bool:
@@ -46,6 +36,14 @@ def global_check(context: commands.Context) -> bool:
 async def on_ready() -> None:
     # Unnecessary
     logging.info("Logger begins here:")
+    # Only load cogs after connection established
+    # Avoid unnecessary errors
+    for cog in default_cogs & available_cogs:
+        try:
+            Bot.load_extension('cogs.' + cog.capitalize())
+            logging.info(f"Loaded cog {cog.capitalize()}")
+        except Exception as e:
+            logging.exception(e)
     print("Ready!")
 
 if __name__ == "__main__":
