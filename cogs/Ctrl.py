@@ -8,7 +8,7 @@ logger = logging.getLogger('lt2b2')
 conf = ConfigParser()
 conf.read("main.conf")
 
-ID_owner = conf['General']['Owner ID']
+#ID_owner = conf['General']['Owner ID']
 
 
 class CogType(commands.Converter):
