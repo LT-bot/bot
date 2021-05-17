@@ -18,7 +18,7 @@ logger.addHandler(handler)
 
 intents = discord.Intents(guild_messages=True, members=True, guilds=True)
 Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
-Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
+#Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
 default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", "Slash"}
@@ -35,15 +35,15 @@ def global_check(context: commands.Context) -> bool:
 @Bot.event
 async def on_ready() -> None:
     # Unnecessary
-    logging.info("Logger begins here:")
+    logger.info("Logger begins here:")
     # Only load cogs after connection established
     # Avoid unnecessary errors
     for cog in default_cogs & available_cogs:
         try:
             Bot.load_extension('cogs.' + cog.capitalize())
-            logging.info(f"Loaded cog {cog.capitalize()}")
+            logger.info(f"Loaded cog {cog.capitalize()}")
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
     print("Ready!")
 
 if __name__ == "__main__":
