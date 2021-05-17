@@ -3,6 +3,8 @@ from typing import Literal
 import logging
 from configparser import ConfigParser
 import discord
+import aiofiles as af
+from collections import deque 
 
 logger = logging.getLogger('lt2b2')
 conf = ConfigParser()
@@ -123,10 +125,22 @@ class Ctrl(commands.Cog):
         """
         pass
 
-    @_debug.command(name='layout', aliases=['l'])
+    @_debug.command(name='log', aliases=['l'])
+    async def _log(self, context: commands.Context, num: int=-1) -> None:
+        """
+        Send log file or last num log entries.
+        """
+        if num == -1:
+            await context.send(file='data/lt2b2.log')
+        else:
+            async with af.open('data/lt2b2.log', 'r') as f:
+                last_n = deque(f.buffer, num)
+            await context.send('```'+''.join(last_n)+'```')
+
+    @_debug.command(name='layout', aliases=['la'])
     async def _layout(self, context: commands.Context) -> None:
         """
-        Layout of channels and role permissions.
+        Write layout of channels and role permissions to file.
         """
         discord.CategoryChannel.changed_roles
         table = "```\n"
