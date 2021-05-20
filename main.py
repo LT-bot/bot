@@ -22,7 +22,7 @@ Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
 #Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
-default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", "Slash"}
+default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", }
 available_cogs = set(i[:-3] for i in next(walk('cogs/'))[2])
 
 

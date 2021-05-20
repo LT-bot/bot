@@ -15,6 +15,7 @@ channel_list = [ch.split() for ch in conf['Deleter']['channel settings'].split('
 bad_words = conf['Deleter']['bad words'].split()
 re_bad = re.compile('|'.join([re.escape(word) for word in bad_words]), re.I)
 bad, main, limit = 0, 1, 2
+interval = int(conf['Deleter']['interval'])
 
 class Deleter(commands.Cog):
     def __init__(self, client: commands.Bot) -> None:
@@ -50,11 +51,12 @@ class Deleter(commands.Cog):
         except discord.NotFound:
             pass
     
-    @tasks.loop(minutes=2)
+    @tasks.loop(minutes=interval)
     async def deleter(self):
         """
-        Runs every 10 minutes and deletes from the queues.
+        Runs every interval minutes and deletes from the queues.
         """
+        logger.info('Running deletion...')
         for channel, queues in self.chan_dict.items():
             pinned = [discord.Object(id=m.id) for m in await channel.pins()]
             logger.info(f'Found {len(pinned)} pins:\n{pinned}')
@@ -62,28 +64,31 @@ class Deleter(commands.Cog):
                 try:
                     queues[main].remove(m)
                 except ValueError:
-                    logger.info(f'Pinned message {m} already excluded.')
+                    #logger.info(f'Pinned message {m} already excluded.')
+                    pass
 
             if queues[bad]:
                 to_delete, queues[bad] = queues[bad], []  #fairly atomic
                 logger.info(f'Trying to delete {len(to_delete)} messages in {str(channel)}, bad.')
-                while to_delete:
-                    try:
+                try:
+                    for _ in range(-(-len(to_delete)//100)):
                         await channel.delete_messages(to_delete[:100])
                         del(to_delete[:100])
-                    except discord.Forbidden:
-                        logger.info('Forbidden exception caught, bad')
+                except:
+                    logger.info('Exception caught, bad')
+                    #queues[bad] = to_delete + queues[bad]
 
             queue, n = queues[main], queues[limit]
             if (num := len(queue) - n) > 0:
                 to_delete, queues[main] = queues[main][:num], queues[main][num:]
                 logger.info(f'Trying to delete {len(to_delete)} messages in {str(channel)}, main.')
-                while to_delete:
-                    try:
+                try:
+                    for _ in range(-(-len(to_delete)//100)):
                         await channel.delete_messages(to_delete[:100])
                         del(to_delete[:100])
-                    except discord.Forbidden:
-                        logger.info('Forbidden exception caught, main.')
+                except:
+                    logger.info('Exception caught, main.')
+                    #queues[main] = to_delete + queues[main]
 
     @deleter.before_loop
     async def load_existing(self):

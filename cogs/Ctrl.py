@@ -43,7 +43,7 @@ class Ctrl(commands.Cog):
         Only bot owner and people with bot ctrl role can do this.
         """
         return await commands.check_any(commands.is_owner(), 
-                commands.has_role(conf['Roles']['bot ctrl'])).predicate(context)
+                commands.has_role(int(conf['Roles']['bot ctrl']))).predicate(context)
 
     async def cog_handler(self, context: commands.Context, 
             pre: Literal['re', 'un', ''], *cogs: str) -> None:
@@ -131,11 +131,14 @@ class Ctrl(commands.Cog):
         Send log file or last num log entries.
         """
         if num == -1:
-            await context.send(file='data/lt2b2.log')
-        else:
+            await context.send('Cringe', file=discord.File('data/lt2b2.log'))
+        elif num > 0:
             async with af.open('data/lt2b2.log', 'r') as f:
                 last_n = deque(f.buffer, num)
-            await context.send('```'+''.join(last_n)+'```')
+            try:
+                await context.send('```'+b''.join(last_n).decode()+'```')
+            except:
+                logger.error("Can't send log")
 
     @_debug.command(name='layout', aliases=['la'])
     async def _layout(self, context: commands.Context) -> None:
