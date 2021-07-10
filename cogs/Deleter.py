@@ -57,8 +57,8 @@ class Deleter(commands.Cog):
         """
         Runs every interval minutes and deletes from the queues.
         """
-        logger.info('Running deletion...')
         for channel, queues in self.chan_dict.items():
+            logger.info(f'Running deletion for {str(channel)}')
             pinned = [discord.Object(id=m.id) for m in await channel.pins()]
             logger.info(f'Found {len(pinned)} pins.') #:\n{pinned}')
             for m in pinned:
@@ -70,7 +70,7 @@ class Deleter(commands.Cog):
 
             if queues[bad]:
                 to_delete, queues[bad] = queues[bad], []  #fairly atomic
-                logger.info(f'Trying to delete {len(to_delete)} messages in {str(channel)}, bad.')
+                logger.info(f'Trying to delete {len(to_delete)} messages bad.')
                 try:
                     for _ in range(-(-len(to_delete)//100)):
                         await channel.delete_messages(to_delete[:100])
@@ -99,6 +99,15 @@ class Deleter(commands.Cog):
             queues[main] = [discord.Object(id=m.id)
                     async for m in channel.history(limit=10000, oldest_first=True, 
                         after=bulk_limit)]
+            # Take care of older messages too (i.e. unpinned)
+            pinned = {discord.Object(id=m.id) for m in await channel.pins()}
+            async for message in channel.history(limit=20, oldest_first=True, 
+                    before=bulk_limit):
+                if not message in pinned:
+                    try:
+                        await message.delete()
+                    except:
+                        pass
 
 
 def setup(client: commands.Bot) -> None:
