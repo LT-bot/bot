@@ -5,6 +5,7 @@ from collections import deque
 import re
 from configparser import ConfigParser
 import logging 
+from datetime import datetime, timedelta
 
 logger = logging.getLogger('lt2b2')
 conf = ConfigParser()
@@ -59,7 +60,7 @@ class Deleter(commands.Cog):
         logger.info('Running deletion...')
         for channel, queues in self.chan_dict.items():
             pinned = [discord.Object(id=m.id) for m in await channel.pins()]
-            logger.info(f'Found {len(pinned)} pins:\n{pinned}')
+            logger.info(f'Found {len(pinned)} pins.') #:\n{pinned}')
             for m in pinned:
                 try:
                     queues[main].remove(m)
@@ -74,8 +75,8 @@ class Deleter(commands.Cog):
                     for _ in range(-(-len(to_delete)//100)):
                         await channel.delete_messages(to_delete[:100])
                         del(to_delete[:100])
-                except:
-                    logger.info('Exception caught, bad')
+                except Exception as e:
+                    logger.info(f'Exception caught, bad:\n{e}')
                     #queues[bad] = to_delete + queues[bad]
 
             queue, n = queues[main], queues[limit]
@@ -86,16 +87,18 @@ class Deleter(commands.Cog):
                     for _ in range(-(-len(to_delete)//100)):
                         await channel.delete_messages(to_delete[:100])
                         del(to_delete[:100])
-                except:
-                    logger.info('Exception caught, main.')
+                except Exception as e:
+                    logger.info(f'Exception caught, main.\n{e}')
                     #queues[main] = to_delete + queues[main]
 
     @deleter.before_loop
     async def load_existing(self):
+        bulk_limit = datetime.now() - timedelta(days=14)
         for channel, queues in self.chan_dict.items():
             logger.info(f'Fetching messages from f{str(channel)}')
             queues[main] = [discord.Object(id=m.id)
-                    async for m in channel.history(limit=5000, oldest_first=True)]
+                    async for m in channel.history(limit=10000, oldest_first=True, 
+                        after=bulk_limit)]
 
 
 def setup(client: commands.Bot) -> None:
