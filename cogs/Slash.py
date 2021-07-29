@@ -32,58 +32,62 @@ async def as_webhook(channel: discord.TextChannel, avatar_url: str, name: str,
 class Slash(commands.Cog):
     def __init__(self, Bot):
         self.Bot = Bot
+        self.cog_before_invoke = self.find_webhooks
+
+    async def find_webhooks(context):
+        print('aaaaa')
 
     @cog_ext.cog_slash(name="sarcasm", guild_ids=guild_ids,
-            description="Need some help getting the message accorss?",
+            description="Unironically",
             options=[
                 create_option(
-                    name="Message",
-                    description="Say something serious!",
+                    name="message",
+                    description="Say something sErIoUs.",
                     option_type=3,
                     required=True
                     )
                 ]
             )
-    async def _sarcasm(self, context: SlashContext, Message: str) -> None:
+    async def _sarcasm(self, context: SlashContext, message: str) -> None:
         """
         Say something totally serious.
         """
-        Message = list(Message.lower().translate(remove_fslash))
+        message = list(message.lower().translate(remove_fslash))
         # This seems like the quickest way to do it?
-        for i in range((len(Message)+1)//2):
-            Message[2*i] = Message[2*i].upper()
+        for i in range((len(message)+1)//2):
+            message[2*i] = message[2*i].upper()
 
-        Message = "".join(Message)
+        message = "".join(message)
         context.author.avatar_url 
         
         name = context.author.nick or context.author.name
 
-        await context.respond(eat=True)
         await as_webhook(context.channel, context.author.avatar_url, 
-                name, Message)
-        #await context.send(content=Message)
+                name, message)
+        await context.send('ok', delete_after=0.01)
 
     
     @cog_ext.cog_slash(name="anon", guild_ids=guild_ids,
-            description="Say something anonymously, no links!",
+            description="Send something anonymously, no links.",
             options=[
                 create_option(
-                    name="Message",
-                    description="Share your secret",
+                    name="message",
+                    description="Share your secret.",
                     option_type=3,
                     required=True
                     )
                 ]
             )
-    async def _anon(self, context: SlashContext, Message: str) -> None:
+    async def _anon(self, context: SlashContext, message: str) -> None:
         """
         Say something anonymously. ID changes every 17 minutes.
         """
         #this isn't cryptographically safe or anything, but it's faster
         id = (context.author.id + round(time(),-3))%secret_num
-        await context.respond(eat=True)
+
         await as_webhook(context.channel, default_avatar,
-                f"Anon {id}", Message.translate(remove_fslash))
+                f"Anon {id}", message.translate(remove_fslash))
+        await context.send('ok', hidden=True)
 
 def setup(Bot):
     Bot.add_cog(Slash(Bot))

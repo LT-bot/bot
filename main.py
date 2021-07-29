@@ -9,17 +9,21 @@ from discord_slash import SlashCommand
 conf = ConfigParser()
 conf.read("main.conf")
 
+LOGGER_NAME = conf['Dev']['logger']
+LOG_PATH = conf['Dev']['log_path']
+
 # Recommended logging setup
-logger = logging.getLogger('lt2b2')
+logger = logging.getLogger(LOGGER_NAME)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='data/lt2b2.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-#logger.addHandler(handler)
+handler = logging.FileHandler(
+        filename=LOG_PATH, encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logging.basicConfig(level=logging.INFO, handlers=[handler])
 
 intents = discord.Intents(guild_messages=True, members=True, guilds=True)
 Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
-#Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
+Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
 default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", }
