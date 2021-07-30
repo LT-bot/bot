@@ -42,8 +42,11 @@ class Ctrl(commands.Cog):
         """
         Only bot owner and people with bot ctrl role can do this.
         """
-        return await commands.check_any(commands.is_owner(), 
-                commands.has_role(int(conf['Roles']['bot ctrl']))).predicate(context)
+        return await commands.check_any(
+                commands.is_owner(), 
+                commands.has_role(
+                    int(conf['Roles']['bot ctrl']))
+                ).predicate(context)
 
     async def cog_handler(self, context: commands.Context, 
             pre: Literal['re', 'un', ''], *cogs: str) -> None:
@@ -51,12 +54,14 @@ class Ctrl(commands.Cog):
         Sanitize list and handle [cogs] according to [pre]fix.
         Shameless code reuse, I know.
         """
-        if not any(*cogs): return
+        if not any(*cogs):
+            await context.send(f'Bro, what are you {pre}loading?')
+            return
+
         cogs = set(*cogs)
         loaded = set([i.lstrip("cogs.") for i in self.Bot.extensions.keys()])
         failed = set()
         msg = ""
-
 
         # If action requires cogs to be loaded, but some aren't
         if pre and (not_loaded := cogs - loaded):
@@ -133,10 +138,14 @@ class Ctrl(commands.Cog):
         if num == -1:
             await context.send('Cringe', file=discord.File('data/lt2b2.log'))
         elif num > 0:
-            async with af.open('data/lt2b2.log', 'r') as f:
+            async with af.open(conf['Dev']['log path'], 'r') as f:
                 last_n = deque(f.buffer, num)
+
+            msg = b''.join(last_n).decode()
+            msg = msg.translate({96: 172}) #ord('`'), ord('¬')
+
             try:
-                await context.send('```'+b''.join(last_n).decode()+'```')
+                await context.send('```' + msg + '```')
             except:
                 logger.error("Can't send log")
 

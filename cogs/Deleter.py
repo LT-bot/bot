@@ -42,7 +42,7 @@ class Deleter(commands.Cog):
             obj = discord.Object(id=message.id)
             if re_bad.search(message.content):
                 queues[bad].append(obj)
-                logger.info(f'Bad message:\n{message.content}.')
+                logger.info(f'Bad message:\n{message.content}')
             else:
                 queues[main].append(obj)
         except KeyError:

@@ -10,7 +10,7 @@ conf = ConfigParser()
 conf.read("main.conf")
 
 LOGGER_NAME = conf['Dev']['logger']
-LOG_PATH = conf['Dev']['log_path']
+LOG_PATH = conf['Dev']['log path']
 
 # Recommended logging setup
 logger = logging.getLogger(LOGGER_NAME)
@@ -26,7 +26,7 @@ Bot = commands.Bot(command_prefix="##", intents=intents)#discord.Intents.all())
 Slash = SlashCommand(Bot, override_type=True, sync_on_cog_reload=True, sync_commands=True)
 
 # Always load Ctrl cog
-default_cogs = set(conf['General']['Default Cogs'].split()) | {"Ctrl", }
+default_cogs = set(conf['General']['default cogs'].split()) | {"Ctrl", }
 available_cogs = set(i[:-3] for i in next(walk('cogs/'))[2])
 
 

@@ -8,10 +8,10 @@ from time import time
 
 conf = ConfigParser()
 conf.read("main.conf")
-guild_ids = [int(i) for i in conf['Slash']['Guild'].split()]
-default_avatar = conf['Slash']['Default Avatar']
+guild_ids = [int(i) for i in conf['Slash']['guild'].split()]
+default_avatar = conf['Slash']['default avatar']
 #disclaimer: regex parsing and shasums would be "better", but this is faster
-secret_num = int(conf['Slash']['Secret Num'])
+secret_num = int(conf['Slash']['secret num'])
 remove_fslash = str.maketrans("/", " ")
 
 async def as_webhook(channel: discord.TextChannel, avatar_url: str, name: str, 
