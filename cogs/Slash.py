@@ -38,7 +38,7 @@ class Slash(commands.Cog):
             webhook = self.webhooks[channel.id]
         except KeyError:
             pass
-        await webhook[0].send(**opts)
+        await webhook.send(**opts)
     
     @commands.command(name='init', aliases=['i'])
     async def _init(self, context: commands.Context):
@@ -47,8 +47,10 @@ class Slash(commands.Cog):
         for hook in hooks:
             if hook.name == 'lt_bot_hooker':
                 self.webhooks[chan.id] = hook
+                await context.send('Webhook found.')
                 return
-        self.webhooks[chan.id] = await chan.create_webhook('lt_bot_hooker')
+        self.webhooks[chan.id] = await chan.create_webhook(name='lt_bot_hooker')
+        await context.send('Webhook created.')
 
     async def find_webhooks(context):
         print('aaaaa')
