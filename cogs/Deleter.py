@@ -100,10 +100,10 @@ class Deleter(commands.Cog):
                     async for m in channel.history(limit=10000, oldest_first=True, 
                         after=bulk_limit)]
             # Take care of older messages too (i.e. unpinned)
-            pinned = {discord.Object(id=m.id) for m in await channel.pins()}
+            pinned_ids = {m.id for m in await channel.pins()}
             async for message in channel.history(limit=20, oldest_first=True, 
                     before=bulk_limit):
-                if not message in pinned:
+                if not message.id in pinned_ids:
                     try:
                         await message.delete()
                     except:

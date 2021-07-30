@@ -178,7 +178,7 @@ class Ctrl(commands.Cog):
         pass
 
     @_settings.command(name='nick', aliases=['n'])
-    async def nick(self, context: commands.Context, new_nick: str=None) -> None: 
+    async def nick(self, context: commands.Context, new_nick: str=None) -> None:
         self_member = context.guild.get_member(self.Bot.user.id)
         await self_member.edit(nick=new_nick)
 
