@@ -14,21 +14,23 @@ conf.read("main.conf")
 #list of lists, [[channel id, max messages], ]
 channel_list = [ch.split() for ch in conf['Deleter']['channel settings'].split(',')]
 bad_words = conf['Deleter']['bad words'].split()
+bad_replace = conf['Deleter']['bad replace']
 re_bad = re.compile('|'.join([re.escape(word) for word in bad_words]), re.I)
 bad, main, limit = 0, 1, 2
 interval = int(conf['Deleter']['interval'])
 
 class Deleter(commands.Cog):
-    def __init__(self, client: commands.Bot) -> None:
+    def __init__(self, Bot: commands.Bot) -> None:
         """
         Use dict of channels with deque for rolling delete, and lists otherwise 
         and max number of messages.
         """
         logger.info('Deleter init.')
-        self.client = client
+        self.Bot = Bot
+        self.as_webhook = Bot.as_webhook
         self.chan_dict = {}
         for chan_id, n in channel_list:
-            self.chan_dict[client.get_channel(int(chan_id))] = {bad: [], main: [], limit: int(n)}
+            self.chan_dict[Bot.get_channel(int(chan_id))] = {bad: [], main: [], limit: int(n)}
         logger.info(f'Working on the following channels:\n{self.chan_dict}')
         self.deleter.start()
     
@@ -40,9 +42,17 @@ class Deleter(commands.Cog):
         try:
             queues = self.chan_dict[message.channel]
             obj = discord.Object(id=message.id)
-            if re_bad.search(message.content):
-                queues[bad].append(obj)
+            if (text := re_bad.sub(bad_replace, message.content)) != message.content:
                 logger.info(f'Bad message:\n{message.content}')
+                await self.as_webhook(
+                        message = text,
+                        channel = message.channel,
+                        avatar_url = message.author.avatar_url,
+                        name = message.author.nick or message.author.name,
+                        attachments = [await att.to_file() for att in message.attachments]
+                        )
+                await message.delete()
+                #queues[bad].append(obj)
             else:
                 queues[main].append(obj)
         except KeyError:
