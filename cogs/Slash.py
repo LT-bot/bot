@@ -18,42 +18,39 @@ remove_fslash = str.maketrans("/", " ")
 class Slash(commands.Cog):
     def __init__(self, Bot):
         self.Bot = Bot
-        self.webhooks = {}
+        self.as_webhook = Bot.as_webhook
         #self.cog_before_invoke = self.find_webhooks
 
-    async def as_webhook(self, channel: discord.TextChannel, avatar_url: str, name: str, 
-            message: str, attachments: Optional[List[discord.Attachment]]=None ) -> None:
-        """
-        Send a message through a webhook. May contain list of files. No mentions
-        because webhooks can't be blocked and it's annoying.
-        """
-        opts = {'content': message,
-                'files': attachments,
-                'avatar_url': avatar_url,
-                'username': name,
-                'allowed_mentions': discord.AllowedMentions.none()
-                }
-        #webhook = await channel.webhooks()
-        try:
-            webhook = self.webhooks[channel.id]
-        except KeyError:
-            pass
-        await webhook.send(**opts)
+    #async def as_webhook(self, channel: discord.TextChannel, avatar_url: str, name: str, 
+    #        message: str, attachments: Optional[List[discord.Attachment]]=None ) -> None:
+    #    """
+    #    Send a message through a webhook. May contain list of files. No mentions
+    #    because webhooks can't be blocked and it's annoying.
+    #    """
+    #    opts = {'content': message,
+    #            'files': attachments,
+    #            'avatar_url': avatar_url,
+    #            'username': name,
+    #            'allowed_mentions': discord.AllowedMentions.none()
+    #            }
+    #    #webhook = await channel.webhooks()
+    #    try:
+    #        webhook = self.webhooks[channel.id]
+    #    except KeyError:
+    #        pass
+    #    await webhook.send(**opts)
     
-    @commands.command(name='init', aliases=['i'])
-    async def _init(self, context: commands.Context):
-        chan = context.channel
-        hooks = await chan.webhooks()
-        for hook in hooks:
-            if hook.name == 'lt_bot_hooker':
-                self.webhooks[chan.id] = hook
-                await context.send('Webhook found.')
-                return
-        self.webhooks[chan.id] = await chan.create_webhook(name='lt_bot_hooker')
-        await context.send('Webhook created.')
-
-    async def find_webhooks(context):
-        print('aaaaa')
+    #@commands.command(name='init', aliases=['i'])
+    #async def _init(self, context: commands.Context):
+    #    chan = context.channel
+    #    hooks = await chan.webhooks()
+    #    for hook in hooks:
+    #        if hook.name == 'lt_bot_hooker':
+    #            self.webhooks[chan.id] = hook
+    #            await context.send('Webhook found.')
+    #            return
+    #    self.webhooks[chan.id] = await chan.create_webhook(name='lt_bot_hooker')
+    #    await context.send('Webhook created.')
 
     @cog_ext.cog_slash(name="sarcasm", guild_ids=guild_ids,
             description="Unironically",
