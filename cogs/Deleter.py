@@ -33,6 +33,15 @@ class Deleter(commands.Cog):
             self.chan_dict[Bot.get_channel(int(chan_id))] = {bad: [], main: [], limit: int(n)}
         logger.info(f'Working on the following channels:\n{self.chan_dict}')
         self.deleter.start()
+
+
+    @commands.command(name='bad_replace', aliases=['br'])
+    async def _bad_replace(self, context: commands.Context, new_word: str='***') -> None:
+        conf['Deleter']['bad replace'] = new_word
+        with open('main.conf', 'w') as f:
+            conf.write(f)
+        bad_replace = new_word
+
     
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
