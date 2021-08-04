@@ -28,7 +28,7 @@ class My_Bot(commands.Bot):
         self.webhooks = {}
 
     async def as_webhook(self, channel: discord.TextChannel, avatar_url: str, name: str,
-            message: str, attachments: Optional[List[discord.Attachment]]=None ) -> None:
+            message: str, attachments: Optional[List[discord.Attachment]]=None ) -> discord.Message:
         """
         Send a message through a webhook. May contain list of files. No mentions
         because webhooks can't be blocked and it's annoying.
@@ -44,7 +44,8 @@ class My_Bot(commands.Bot):
             webhook = self.webhooks[channel.id]
         except KeyError:
             pass
-        await webhook.send(**opts)
+        #wait to get return value
+        return await webhook.send(**opts, wait=True)
 
 # Init bot
 intents = discord.Intents(guild_messages=True, members=True, guilds=True)

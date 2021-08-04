@@ -54,10 +54,9 @@ class Deleter(commands.Cog):
         """
         try:
             queues = self.chan_dict[message.channel]
-            obj = discord.Object(id=message.id)
             if (text := re_bad.sub(self.bad_replace, message.content)) != message.content:
                 logger.info(f'Bad message:\n{message.content}')
-                await self.as_webhook(
+                wmessage = await self.as_webhook(
                         message = text,
                         channel = message.channel,
                         avatar_url = message.author.avatar_url,
@@ -65,8 +64,10 @@ class Deleter(commands.Cog):
                         attachments = [await att.to_file() for att in message.attachments]
                         )
                 await message.delete()
-                #queues[bad].append(obj)
+                obj = discord.Object(id=wmessage.id)
+                queues[main].append(obj)
             else:
+                obj = discord.Object(id=message.id)
                 queues[main].append(obj)
         except KeyError:
             pass
