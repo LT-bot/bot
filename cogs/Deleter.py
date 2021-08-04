@@ -18,6 +18,7 @@ bad_replace = conf['Deleter']['bad replace']
 re_bad = re.compile('|'.join([re.escape(word) for word in bad_words]), re.I)
 bad, main, limit = 0, 1, 2
 interval = int(conf['Deleter']['interval'])
+r_del_ctrl = int(conf['Deleter']['ctrl role'])
 
 class Deleter(commands.Cog):
     def __init__(self, Bot: commands.Bot) -> None:
@@ -28,19 +29,22 @@ class Deleter(commands.Cog):
         logger.info('Deleter init.')
         self.Bot = Bot
         self.as_webhook = Bot.as_webhook
+        self.bad_replace = bad_replace
         self.chan_dict = {}
         for chan_id, n in channel_list:
             self.chan_dict[Bot.get_channel(int(chan_id))] = {bad: [], main: [], limit: int(n)}
         logger.info(f'Working on the following channels:\n{self.chan_dict}')
         self.deleter.start()
 
-
+    @commands.has_role(r_del_ctrl)
     @commands.command(name='bad_replace', aliases=['br'])
     async def _bad_replace(self, context: commands.Context, new_word: str='***') -> None:
         conf['Deleter']['bad replace'] = new_word
         with open('main.conf', 'w') as f:
             conf.write(f)
-        bad_replace = new_word
+        self.bad_replace = new_word
+        logger.info(f'Changing bad word replace to {new_word}')
+        await context.send(f'Changing bad word replace to {new_word}')
 
     
     @commands.Cog.listener()
@@ -51,7 +55,7 @@ class Deleter(commands.Cog):
         try:
             queues = self.chan_dict[message.channel]
             obj = discord.Object(id=message.id)
-            if (text := re_bad.sub(bad_replace, message.content)) != message.content:
+            if (text := re_bad.sub(self.bad_replace, message.content)) != message.content:
                 logger.info(f'Bad message:\n{message.content}')
                 await self.as_webhook(
                         message = text,
