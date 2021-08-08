@@ -36,6 +36,9 @@ class Deleter(commands.Cog):
         logger.info(f'Working on the following channels:\n{self.chan_dict}')
         self.deleter.start()
 
+    def cog_unload(self):
+        self.deleter.cancel()
+
     @commands.has_role(r_del_ctrl)
     @commands.command(name='bad_replace', aliases=['br'])
     async def _bad_replace(self, context: commands.Context, new_word: str='***') -> None:

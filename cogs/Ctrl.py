@@ -76,6 +76,7 @@ class Ctrl(commands.Cog):
         for cog in cogs:
             try:
                 getattr(self.Bot, pre + "load_extension")("cogs." + cog)
+                logging.info(f"{pre}load {cog}.")
             except:
                 failed |= {cog}
                 logging.exception(f"Can't {pre}load {cog}.")
