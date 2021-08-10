@@ -11,7 +11,7 @@ conf = ConfigParser()
 conf.read("main.conf")
 
 #ID_owner = conf['General']['Owner ID']
-
+LOG_PATH = conf['Dev']['log path']
 
 class CogType(commands.Converter):
     """
@@ -137,7 +137,7 @@ class Ctrl(commands.Cog):
         Send log file or last num log entries.
         """
         if num == -1:
-            await context.send('Cringe', file=discord.File('data/lt2b2.log'))
+            await context.send('Cringe', file=discord.File(LOG_PATH))
         elif num > 0:
             async with af.open(conf['Dev']['log path'], 'r') as f:
                 last_n = deque(f.buffer, num)
